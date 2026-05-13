@@ -1,0 +1,32 @@
+databaseChangeLog:
+  - changeSet:
+      id: 2
+      author: seu_nome
+      changes:
+        - createTable:
+            tableName: order_items
+            columns:
+              - column:
+                  name: id
+                  type: BIGINT
+                  autoIncrement: true
+                  constraints:
+                    primaryKey: true
+                    nullable: false
+              - column:
+                  name: product_id
+                  type: VARCHAR(255)
+              - column:
+                  name: quantity
+                  type: DECIMAL(19, 2)
+              - column:
+                  name: unit_price
+                  type: DECIMAL(19, 2)
+              - column:
+                  name: order_id
+                  type: NUMBER(19, 0)
+                  constraints:
+                    nullable: false
+                    foreignKeyName: fk_order_items_order
+                    referencedTableName: orders
+                    referencedColumnNames: id

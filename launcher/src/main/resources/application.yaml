@@ -1,0 +1,9 @@
+spring:
+  config:
+    import: "classpath:application-order.yaml" # Rename order-node's yaml to this
+
+#debug: true
+#logging:
+#  level:
+#    org.springframework: DEBUG
+#    liquibase: DEBUG

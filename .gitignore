@@ -31,3 +31,10 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### wsl2 ###
+**/*:Zone.Identifier
+*.Identifier
+*:Zone.Identifier
+
+>>>>>>> Stashed changes

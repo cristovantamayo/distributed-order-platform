@@ -1,0 +1,115 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20260513-migrar-pk-uuid-oracle-final
+      author: seu-nome
+      changes:
+        # 1. Criar coluna temporária na tabela ORDER_ITEMS para a nova FK
+        - addColumn:
+            tableName: ORDER_ITEMS
+            columns:
+              - column:
+                  name: NEW_ORDER_ID
+                  type: VARCHAR2(36)
+
+        # 2. Gerar UUIDs formatados com hífen nas linhas vazias da tabela ORDERS
+        - update:
+            tableName: ORDERS
+            columns:
+              - column:
+                  name: EVENT_ID
+                  valueComputed: "REGEXP_REPLACE(RAWTOHEX(SYS_GUID()), '([A-F0-9]{8})([A-F0-9]{4})([A-F0-9]{4})([A-F0-9]{4})([A-F0-9]{12})', '\\1-\\2-\\3-\\4-\\5')"
+            where: "EVENT_ID IS NULL"
+
+        # 3. Migrar os novos IDs associando a FK antiga NUMBER(19,0) ao novo UUID
+        - update:
+            tableName: ORDER_ITEMS
+            columns:
+              - column:
+                  name: NEW_ORDER_ID
+                  valueComputed: "(SELECT o.EVENT_ID FROM ORDERS o WHERE o.ID = ORDER_ITEMS.ORDER_ID)"
+
+        # 4. Criar a coluna temporária para a nova PK da tabela filha
+        - addColumn:
+            tableName: ORDER_ITEMS
+            columns:
+              - column:
+                  name: NEW_ITEM_ID
+                  type: VARCHAR2(36)
+
+        # 5. Preencher a nova PK da tabela filha com UUIDs válidos
+        - update:
+            tableName: ORDER_ITEMS
+            columns:
+              - column:
+                  name: NEW_ITEM_ID
+                  valueComputed: "REGEXP_REPLACE(RAWTOHEX(SYS_GUID()), '([A-F0-9]{8})([A-F0-9]{4})([A-F0-9]{4})([A-F0-9]{4})([A-F0-9]{12})', '\\1-\\2-\\3-\\4-\\5')"
+
+        # 6. Remover a Foreign Key antiga (Verifique o nome exato dentro da pasta 'Foreign Keys' de ORDER_ITEMS)
+        # Caso o Oracle tenha gerado automaticamente na lista de Constraints, pode ser o SYS_C008635 ou SYS_C008636
+        - dropForeignKeyConstraint:
+            baseTableName: ORDER_ITEMS
+            constraintName: FK_ORDER_ITEMS_ORDER
+
+        # 7. Remover as PKs antigas usando os nomes exatos identificados na imagem
+        - dropPrimaryKey:
+            tableName: ORDERS
+            constraintName: PK_ORDERS
+        - dropPrimaryKey:
+            tableName: ORDER_ITEMS
+            constraintName: PK_ORDER_ITEMS
+
+        # 8. Aplicar restrições NOT NULL obrigatórias para os novos campos identificadores
+        - addNotNullConstraint:
+            tableName: ORDERS
+            columnName: EVENT_ID
+            columnDataType: VARCHAR2(36)
+        - addNotNullConstraint:
+            tableName: ORDER_ITEMS
+            columnName: NEW_ITEM_ID
+            columnDataType: VARCHAR2(36)
+        - addNotNullConstraint:
+            tableName: ORDER_ITEMS
+            columnName: NEW_ORDER_ID
+            columnDataType: VARCHAR2(36)
+
+        # 9. Ativar as novas Chaves Primárias baseadas em texto
+        - addPrimaryKey:
+            tableName: ORDERS
+            columnNames: EVENT_ID
+            constraintName: PK_ORDERS_EVENT_ID
+        - addPrimaryKey:
+            tableName: ORDER_ITEMS
+            columnNames: NEW_ITEM_ID
+            constraintName: PK_ORDER_ITEMS_NEW_ID
+
+        # 10. Criar o novo relacionamento de integridade referencial UUID entre as tabelas
+        - addForeignKeyConstraint:
+            baseTableName: ORDER_ITEMS
+            baseColumnNames: NEW_ORDER_ID
+            referencedTableName: ORDERS
+            referencedColumnNames: EVENT_ID
+            constraintName: FK_ORDER_ITEMS_ORDERS_UUID
+            onDelete: CASCADE
+
+        # 11. Eliminar de forma definitiva as estruturas numéricas antigas (NUMBER)
+        - dropColumn:
+            tableName: ORDERS
+            columnName: ID
+        - dropColumn:
+            tableName: ORDER_ITEMS
+            columnName: ID
+        - dropColumn:
+            tableName: ORDER_ITEMS
+            columnName: ORDER_ID
+
+        # 12. Renomear as novas colunas estruturadas para os nomes finais compatíveis com o JPA
+        - renameColumn:
+            tableName: ORDER_ITEMS
+            oldColumnName: NEW_ITEM_ID
+            newColumnName: ID
+            columnDataType: VARCHAR2(36)
+        - renameColumn:
+            tableName: ORDER_ITEMS
+            oldColumnName: NEW_ORDER_ID
+            newColumnName: ORDER_ID
+            columnDataType: VARCHAR2(36)
