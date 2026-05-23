@@ -15,10 +15,9 @@ import java.util.UUID;
 public class OrderItemEntity {
 
     @Id
-    @GeneratedValue
-    @UuidGenerator
-    @Column(name = "id", updatable = false, nullable = false, columnDefinition = "VARCHAR(36)")
-    private UUID id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private Long Id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "order_id", nullable = false, columnDefinition = "VARCHAR(36)")
@@ -34,3 +33,4 @@ public class OrderItemEntity {
 
     public OrderItemEntity() {}
 }
+

@@ -1,0 +1,14 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-idempotency-key-to-orders
+      author: Cristovan Tamayo
+      changes:
+        - addColumn:
+            tableName: orders
+            columns:
+              - column:
+                  name: idempotency_key
+                  type: VARCHAR2(100)
+                  constraints:
+                    unique: true
+                    uniqueConstraintName: uq_orders_idempotency_key

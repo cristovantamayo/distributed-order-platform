@@ -1,4 +1,4 @@
-package com.cristovantamayo.order.dao;
+package com.cristovantamayo.order.model;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonValue;
@@ -13,7 +13,8 @@ public enum OrderStatusEnum {
     RECEIVED("OrderCreated"),
     AWAITING_INVENTORY("OrderAwaitingInventory"),
     CONFIRMED("OrderConfirmed"),
-    CANCELLED("OrderCanceled");
+    CANCELLED("OrderCanceled"),
+    AWAITING_PAYMENT("OrderAwaitingPayment");
 
     @JsonValue
     private final String eventType;

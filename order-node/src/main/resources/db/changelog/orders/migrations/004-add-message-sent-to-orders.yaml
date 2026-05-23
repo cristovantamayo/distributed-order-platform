@@ -1,0 +1,16 @@
+databaseChangeLog:
+  - changeSet:
+      id: add-message-sent-to-orders
+      author: Cristovan Tamayo
+      changes:
+        - addColumn:
+            tableName: ORDERS # IMPORTANTE: Oracle usa nomes em MAIÚSCULO por padrão
+            columns:
+              - column:
+                  name: message_sent
+                  type: NUMBER(1,0)
+                  defaultValueNumeric: 0
+                  constraints:
+                    nullable: false
+                    checkConstraint: "CONSTRAINT chk_message_sent CHECK (message_sent IN (0, 1))"
+

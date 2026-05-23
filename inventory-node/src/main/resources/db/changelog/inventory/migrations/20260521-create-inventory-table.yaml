@@ -1,0 +1,26 @@
+databaseChangeLog:
+  - changeSet:
+      id: 20260521-create-inventory-table
+      author: liquibase-generator
+      changes:
+        - createTable:
+            schemaName: APP_INVENTORY
+            tableName: INVENTORY
+            columns:
+              - column:
+                  name: PRODUCT_ID
+                  type: varchar(36)
+                  constraints:
+                    nullable: false
+                    primaryKey: true
+                    primaryKeyName: PK_INVENTORY
+              - column:
+                  name: AVAILABLE_QUANTITY
+                  type: decimal(19, 2)
+                  constraints:
+                    nullable: false
+              - column:
+                  name: RESERVED_QUANTITY
+                  type: decimal(19, 2)
+                  constraints:
+                    nullable: false

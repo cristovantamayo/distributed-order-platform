@@ -23,8 +23,11 @@
     </parent>
 
     <modules>
+        <module>inventory-node</module>
         <module>order-node</module>
         <module>launcher</module>
+        <module>messaging-infra</module>
+        <module>shared-kernel</module>
     </modules>
 
 </project>

@@ -1,19 +1,17 @@
-package com.cristovantamayo.order.dao;
+package com.cristovantamayo.order.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.Positive;
-import lombok.Getter;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 public record OrderDTO(
-        Long id,
-        String eventId,
+        UUID id,
         @NotBlank String customerId,
         @NotEmpty @Valid List<Item> items,
         @Positive BigDecimal totalAmount,
@@ -40,5 +38,9 @@ public record OrderDTO(
 
     public List<Item> getItems() {
         return items;
+    }
+
+    public OrderDTO withId(UUID newId) {
+        return new OrderDTO(newId, this.customerId, this.items, this.totalAmount, this.eventType, this.createdAt);
     }
 }

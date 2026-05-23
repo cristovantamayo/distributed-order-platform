@@ -1,12 +1,11 @@
 package com.cristovantamayo.order.service.mapper;
 
-import com.cristovantamayo.order.dao.OrderDTO;
-import com.cristovantamayo.order.dao.OrderStatusEnum;
+import com.cristovantamayo.order.model.OrderCreatedEvent;
+import com.cristovantamayo.order.model.OrderDTO;
 import com.cristovantamayo.order.repository.entities.OrderEntity;
 import com.cristovantamayo.order.repository.entities.OrderItemEntity;
 import org.mapstruct.*;
 import org.mapstruct.factory.Mappers;
-import org.springframework.data.domain.jaxb.SpringDataJaxb;
 
 import java.util.List;
 
@@ -31,4 +30,8 @@ public interface OrderMapper {
             order.getItems().forEach(item -> item.setOrder(order));
         }
     }
+
+    List<OrderCreatedEvent.Items> toEventItems(List<OrderItemEntity> entityItems);
+
+    OrderCreatedEvent.Items toEventItem(OrderItemEntity entityItem);
 }
