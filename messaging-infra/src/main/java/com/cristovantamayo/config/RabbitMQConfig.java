@@ -6,8 +6,10 @@ import org.springframework.amqp.rabbit.connection.ConnectionFactory;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.amqp.support.converter.ClassMapper;
 import org.springframework.amqp.support.converter.JacksonJsonMessageConverter;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
 
 @Configuration
 public class RabbitMQConfig {
@@ -29,26 +31,34 @@ public class RabbitMQConfig {
         return converter;
     }
 
-    @Bean
-    public ConnectionFactory connectionFactory() {
+    // --- FÁBRICA EXCLUSIVA DO PRODUTOR (RABBIT TEMPLATE) ---
+    @Primary
+    @Bean(name = "producerConnectionFactory")
+    public ConnectionFactory producerConnectionFactory() {
         CachingConnectionFactory connectionFactory = new CachingConnectionFactory("localhost");
         connectionFactory.setUsername("guest");
         connectionFactory.setPassword("guest");
+        connectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.CORRELATED); // Ativo com segurança
+        connectionFactory.setPublisherReturns(true); // Ativo com segurança
+        return connectionFactory;
+    }
 
-        connectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.CORRELATED);
-
-        // ATIVAÇÃO: Habilita o Publisher Returns
-        connectionFactory.setPublisherReturns(true);
-
+    // --- FÁBRICA EXCLUSIVA DOS CONSUMIDORES (LISTENERS) ---
+    @Bean(name = "consumerConnectionFactory")
+    public ConnectionFactory consumerConnectionFactory() {
+        CachingConnectionFactory connectionFactory = new CachingConnectionFactory("localhost");
+        connectionFactory.setUsername("guest");
+        connectionFactory.setPassword("guest");
+        connectionFactory.setPublisherConfirmType(CachingConnectionFactory.ConfirmType.NONE); // Já nasce limpo
+        connectionFactory.setPublisherReturns(false); // Já nasce limpo
         return connectionFactory;
     }
 
     @Bean
-    public RabbitTemplate rabbitTemplate(ConnectionFactory connectionFactory) {
+    public RabbitTemplate rabbitTemplate(@Qualifier("producerConnectionFactory") ConnectionFactory connectionFactory) {
+
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
-
         rabbitTemplate.setMessageConverter(messageConverter());
-
         // OBRIGATÓRIO: Força o broker a devolver a mensagem se ela não for roteada
         rabbitTemplate.setMandatory(true);
 

@@ -1,6 +1,5 @@
 package com.cristovantamayo.order.repository;
 
-import com.cristovantamayo.order.model.OrderStatusDTO;
 import com.cristovantamayo.order.model.OrderStatusEnum;
 import com.cristovantamayo.order.repository.entities.OrderEntity;
 import org.springframework.data.jpa.repository.EntityGraph;
@@ -23,7 +22,12 @@ public interface OrderRepository extends JpaRepository<OrderEntity, UUID> {
     @Modifying(clearAutomatically = true)
     @Transactional
     @Query("UPDATE OrderEntity o SET o.messageSent = true WHERE o.idempotencyKey = :idempotencyKey")
-    void updateMessageSentStatus(@Param("idempotencyKey") String idempotencyKey);
+    void updateMessageSentStatusTrue(@Param("idempotencyKey") String idempotencyKey);
+
+    @Modifying(clearAutomatically = true)
+    @Transactional
+    @Query("UPDATE OrderEntity o SET o.messageSent = :messageSentStatus WHERE o.id = :orderId")
+    void updateMessageSentStatusByOrderId(@Param("orderId") UUID orderId, @Param("messageSentStatus") boolean messageSentStatus);
 
     @Modifying
     @Transactional

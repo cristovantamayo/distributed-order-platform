@@ -8,6 +8,10 @@ import org.springframework.data.domain.Pageable;
 import java.util.UUID;
 
 public interface OrderService {
+    
+    public static final boolean MESSAGE_SENT_FALSE = false;
+    public static final boolean MESSAGE_SENT_TRUE = true;
+
     OrderDTO save(String idempotencyKey, OrderDTO orderDAO);
 
     Page<OrderDTO> getAll(Pageable pageable);
